@@ -1,0 +1,669 @@
+{
+  "metadata": {
+    "format_version": "1.0",
+    "source_label": "pandas.DataFrame",
+    "source_commit": null,
+    "dialect": "postgres",
+    "generated_at": "2026-07-21T11:29:11Z",
+    "top_limit": 20,
+    "example_limit": 20
+  },
+  "summary": {
+    "query_count": 3,
+    "parsed_query_count": 3,
+    "table_count": 4,
+    "column_count": 9,
+    "active_column_count": 6,
+    "unused_column_count": 3,
+    "resolved_condition_count": 10,
+    "resolved_literal_count": 10,
+    "resolved_source_row_count": 20,
+    "quality_source_row_count": 0,
+    "lineage_status_counts": {
+      "resolved": 20
+    },
+    "lineage_resolution_rate": 1.0
+  },
+  "tables": [
+    {
+      "catalog_name": "warehouse",
+      "schema_name": "tpcds",
+      "table_name": "date_dim",
+      "qualified_name": "warehouse.tpcds.date_dim",
+      "column_count": 2,
+      "active_column_count": 1,
+      "condition_count": 2,
+      "literal_count": 2,
+      "source_row_count": 6,
+      "distinct_query_count": 1,
+      "context_counts": {
+        "WHERE": 6
+      },
+      "operator_counts": {
+        "BETWEEN": 6
+      },
+      "pattern_family_counts": {
+        "exact_value": 6
+      },
+      "columns": [
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "date_dim",
+          "column_name": "d_date_sk",
+          "qualified_name": "warehouse.tpcds.date_dim.d_date_sk",
+          "usage_status": "unused",
+          "condition_count": 0,
+          "literal_count": 0,
+          "source_row_count": 0,
+          "weighted_literal_count": 0,
+          "distinct_query_count": 0,
+          "context_counts": {},
+          "operator_counts": {},
+          "pattern_family_counts": {},
+          "pattern_format_counts": {},
+          "top_values": [],
+          "top_patterns": [],
+          "example_query_ids": []
+        },
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "date_dim",
+          "column_name": "d_month_seq",
+          "qualified_name": "warehouse.tpcds.date_dim.d_month_seq",
+          "usage_status": "active",
+          "condition_count": 2,
+          "literal_count": 2,
+          "source_row_count": 6,
+          "weighted_literal_count": 6,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "WHERE": 6
+          },
+          "operator_counts": {
+            "BETWEEN": 6
+          },
+          "pattern_family_counts": {
+            "exact_value": 6
+          },
+          "pattern_format_counts": {
+            "exact_value": 6
+          },
+          "top_values": [
+            {
+              "value": "1200",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "BETWEEN": 3
+              },
+              "raw_examples": [
+                "1200"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            },
+            {
+              "value": "1200 + 11",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "BETWEEN": 3
+              },
+              "raw_examples": [
+                "1200 + 11"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            }
+          ],
+          "top_patterns": [],
+          "example_query_ids": [
+            "tpcds-patterns"
+          ]
+        }
+      ]
+    },
+    {
+      "catalog_name": "warehouse",
+      "schema_name": "tpcds",
+      "table_name": "item",
+      "qualified_name": "warehouse.tpcds.item",
+      "column_count": 2,
+      "active_column_count": 1,
+      "condition_count": 2,
+      "literal_count": 2,
+      "source_row_count": 6,
+      "distinct_query_count": 1,
+      "context_counts": {
+        "WHERE": 6
+      },
+      "operator_counts": {
+        "ILIKE": 3,
+        "~*": 3
+      },
+      "pattern_family_counts": {
+        "like_contains": 3,
+        "regex": 3
+      },
+      "columns": [
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "item",
+          "column_name": "i_color",
+          "qualified_name": "warehouse.tpcds.item.i_color",
+          "usage_status": "active",
+          "condition_count": 2,
+          "literal_count": 2,
+          "source_row_count": 6,
+          "weighted_literal_count": 6,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "WHERE": 6
+          },
+          "operator_counts": {
+            "ILIKE": 3,
+            "~*": 3
+          },
+          "pattern_family_counts": {
+            "like_contains": 3,
+            "regex": 3
+          },
+          "pattern_format_counts": {
+            "alternation+anchored_end+anchored_start+case_insensitive+groups": 3,
+            "like_contains": 3
+          },
+          "top_values": [
+            {
+              "value": "^(red|blue)$",
+              "pattern_family": "regex",
+              "pattern_format": "alternation+anchored_end+anchored_start+case_insensitive+groups",
+              "pattern_template": "&CHARACTER",
+              "regex_features": {
+                "alternation": true,
+                "anchored_end": true,
+                "anchored_start": true,
+                "backreference": false,
+                "case_insensitive": true,
+                "character_classes": false,
+                "groups": true,
+                "inline_flags": false,
+                "lookaround": false,
+                "quantifiers": false
+              },
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "~*": 3
+              },
+              "raw_examples": [
+                "^(red|blue)$"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            },
+            {
+              "value": "purple",
+              "pattern_family": "like_contains",
+              "pattern_format": "like_contains",
+              "pattern_template": "%&CHARACTER%",
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "ILIKE": 3
+              },
+              "raw_examples": [
+                "%purple%"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            }
+          ],
+          "top_patterns": [
+            {
+              "value": "^(red|blue)$",
+              "pattern_family": "regex",
+              "pattern_format": "alternation+anchored_end+anchored_start+case_insensitive+groups",
+              "pattern_template": "&CHARACTER",
+              "regex_features": {
+                "alternation": true,
+                "anchored_end": true,
+                "anchored_start": true,
+                "backreference": false,
+                "case_insensitive": true,
+                "character_classes": false,
+                "groups": true,
+                "inline_flags": false,
+                "lookaround": false,
+                "quantifiers": false
+              },
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "~*": 3
+              },
+              "raw_examples": [
+                "^(red|blue)$"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            },
+            {
+              "value": "purple",
+              "pattern_family": "like_contains",
+              "pattern_format": "like_contains",
+              "pattern_template": "%&CHARACTER%",
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 3,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 3
+              },
+              "operator_counts": {
+                "ILIKE": 3
+              },
+              "raw_examples": [
+                "%purple%"
+              ],
+              "example_query_ids": [
+                "tpcds-patterns"
+              ]
+            }
+          ],
+          "example_query_ids": [
+            "tpcds-patterns"
+          ]
+        },
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "item",
+          "column_name": "i_item_sk",
+          "qualified_name": "warehouse.tpcds.item.i_item_sk",
+          "usage_status": "unused",
+          "condition_count": 0,
+          "literal_count": 0,
+          "source_row_count": 0,
+          "weighted_literal_count": 0,
+          "distinct_query_count": 0,
+          "context_counts": {},
+          "operator_counts": {},
+          "pattern_family_counts": {},
+          "pattern_format_counts": {},
+          "top_values": [],
+          "top_patterns": [],
+          "example_query_ids": []
+        }
+      ]
+    },
+    {
+      "catalog_name": "warehouse",
+      "schema_name": "tpcds",
+      "table_name": "ship_mode",
+      "qualified_name": "warehouse.tpcds.ship_mode",
+      "column_count": 1,
+      "active_column_count": 1,
+      "condition_count": 2,
+      "literal_count": 2,
+      "source_row_count": 4,
+      "distinct_query_count": 1,
+      "context_counts": {
+        "WHERE": 4
+      },
+      "operator_counts": {
+        "IN": 4
+      },
+      "pattern_family_counts": {
+        "exact_value": 4
+      },
+      "columns": [
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "ship_mode",
+          "column_name": "sm_carrier",
+          "qualified_name": "warehouse.tpcds.ship_mode.sm_carrier",
+          "usage_status": "active",
+          "condition_count": 2,
+          "literal_count": 2,
+          "source_row_count": 4,
+          "weighted_literal_count": 4,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "WHERE": 4
+          },
+          "operator_counts": {
+            "IN": 4
+          },
+          "pattern_family_counts": {
+            "exact_value": 4
+          },
+          "pattern_format_counts": {
+            "exact_value": 4
+          },
+          "top_values": [
+            {
+              "value": "BARIAN",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": "&CHARACTER",
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 2,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 2
+              },
+              "operator_counts": {
+                "IN": 2
+              },
+              "raw_examples": [
+                "BARIAN"
+              ],
+              "example_query_ids": [
+                "tpcds-q66-fragment"
+              ]
+            },
+            {
+              "value": "DHL",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": "&CHARACTER",
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 2,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 2
+              },
+              "operator_counts": {
+                "IN": 2
+              },
+              "raw_examples": [
+                "DHL"
+              ],
+              "example_query_ids": [
+                "tpcds-q66-fragment"
+              ]
+            }
+          ],
+          "top_patterns": [],
+          "example_query_ids": [
+            "tpcds-q66-fragment"
+          ]
+        }
+      ]
+    },
+    {
+      "catalog_name": "warehouse",
+      "schema_name": "tpcds",
+      "table_name": "store_sales",
+      "qualified_name": "warehouse.tpcds.store_sales",
+      "column_count": 4,
+      "active_column_count": 3,
+      "condition_count": 4,
+      "literal_count": 4,
+      "source_row_count": 4,
+      "distinct_query_count": 1,
+      "context_counts": {
+        "WHERE": 3,
+        "HAVING": 1
+      },
+      "operator_counts": {
+        "=": 2,
+        ">": 1,
+        "IS NULL": 1
+      },
+      "pattern_family_counts": {
+        "exact_value": 3,
+        "null_check": 1
+      },
+      "columns": [
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "store_sales",
+          "column_name": "ss_addr_sk",
+          "qualified_name": "warehouse.tpcds.store_sales.ss_addr_sk",
+          "usage_status": "active",
+          "condition_count": 1,
+          "literal_count": 1,
+          "source_row_count": 1,
+          "weighted_literal_count": 1,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "WHERE": 1
+          },
+          "operator_counts": {
+            "IS NULL": 1
+          },
+          "pattern_family_counts": {
+            "null_check": 1
+          },
+          "pattern_format_counts": {
+            "null_check": 1
+          },
+          "top_values": [
+            {
+              "value": "NULL",
+              "pattern_family": "null_check",
+              "pattern_format": "null_check",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 1,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 1
+              },
+              "operator_counts": {
+                "IS NULL": 1
+              },
+              "raw_examples": [
+                "NULL"
+              ],
+              "example_query_ids": [
+                "tpcds-q44-style"
+              ]
+            }
+          ],
+          "top_patterns": [
+            {
+              "value": "NULL",
+              "pattern_family": "null_check",
+              "pattern_format": "null_check",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 1,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 1
+              },
+              "operator_counts": {
+                "IS NULL": 1
+              },
+              "raw_examples": [
+                "NULL"
+              ],
+              "example_query_ids": [
+                "tpcds-q44-style"
+              ]
+            }
+          ],
+          "example_query_ids": [
+            "tpcds-q44-style"
+          ]
+        },
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "store_sales",
+          "column_name": "ss_item_sk",
+          "qualified_name": "warehouse.tpcds.store_sales.ss_item_sk",
+          "usage_status": "unused",
+          "condition_count": 0,
+          "literal_count": 0,
+          "source_row_count": 0,
+          "weighted_literal_count": 0,
+          "distinct_query_count": 0,
+          "context_counts": {},
+          "operator_counts": {},
+          "pattern_family_counts": {},
+          "pattern_format_counts": {},
+          "top_values": [],
+          "top_patterns": [],
+          "example_query_ids": []
+        },
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "store_sales",
+          "column_name": "ss_net_profit",
+          "qualified_name": "warehouse.tpcds.store_sales.ss_net_profit",
+          "usage_status": "active",
+          "condition_count": 1,
+          "literal_count": 1,
+          "source_row_count": 1,
+          "weighted_literal_count": 1,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "HAVING": 1
+          },
+          "operator_counts": {
+            ">": 1
+          },
+          "pattern_family_counts": {
+            "exact_value": 1
+          },
+          "pattern_format_counts": {
+            "exact_value": 1
+          },
+          "top_values": [
+            {
+              "value": "0.9",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 1,
+              "source_row_count": 1,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "HAVING": 1
+              },
+              "operator_counts": {
+                ">": 1
+              },
+              "raw_examples": [
+                "0.9"
+              ],
+              "example_query_ids": [
+                "tpcds-q44-style"
+              ]
+            }
+          ],
+          "top_patterns": [],
+          "example_query_ids": [
+            "tpcds-q44-style"
+          ]
+        },
+        {
+          "catalog_name": "warehouse",
+          "schema_name": "tpcds",
+          "table_name": "store_sales",
+          "column_name": "ss_store_sk",
+          "qualified_name": "warehouse.tpcds.store_sales.ss_store_sk",
+          "usage_status": "active",
+          "condition_count": 2,
+          "literal_count": 2,
+          "source_row_count": 2,
+          "weighted_literal_count": 2,
+          "distinct_query_count": 1,
+          "context_counts": {
+            "WHERE": 2
+          },
+          "operator_counts": {
+            "=": 2
+          },
+          "pattern_family_counts": {
+            "exact_value": 2
+          },
+          "pattern_format_counts": {
+            "exact_value": 2
+          },
+          "top_values": [
+            {
+              "value": "4",
+              "pattern_family": "exact_value",
+              "pattern_format": "exact_value",
+              "pattern_template": null,
+              "regex_features": {},
+              "condition_count": 2,
+              "source_row_count": 2,
+              "distinct_query_count": 1,
+              "context_counts": {
+                "WHERE": 2
+              },
+              "operator_counts": {
+                "=": 2
+              },
+              "raw_examples": [
+                "4"
+              ],
+              "example_query_ids": [
+                "tpcds-q44-style"
+              ]
+            }
+          ],
+          "top_patterns": [],
+          "example_query_ids": [
+            "tpcds-q44-style"
+          ]
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "group_count": 0,
+    "source_row_count": 0,
+    "groups": []
+  }
+}
