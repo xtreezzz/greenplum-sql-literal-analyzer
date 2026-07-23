@@ -21,7 +21,7 @@ python3 -m venv .venv
 .venv/bin/pip install -e '.[greenplum,notebook]'
 ```
 
-Эта установка нужна для основного notebook-сценария. Для CLI без Jupyter/Pandas достаточно `.[greenplum]`. Проверенный стек: Python 3.11, SQLGlot 25.34.x, psycopg2 2.9.x.
+Эта установка нужна для работы из клона репозитория, включая локальный Jupyter. Для CLI без Jupyter/Pandas достаточно `.[greenplum]`. Переносимый notebook ниже умеет самостоятельно установить зависимости и не требует клона репозитория. Проверенный стек: Python 3.11, SQLGlot 25.34.x, psycopg2 2.9.x.
 
 ## Быстрый локальный запуск
 
@@ -55,40 +55,101 @@ python3 -m venv .venv
 
 Метаданные колонок читаются один раз из `pg_catalog`. Если в `search_path` есть одинаковые таблицы либо неквалифицированная колонка подходит нескольким источникам, результат получает `ambiguous`, а не случайно выбранную таблицу.
 
-## Pandas и Jupyter
+## Pandas и Jupyter: переносимый основной workflow
 
-Основной путь — notebook [`notebooks/sql_catalog_from_dataframe.ipynb`](notebooks/sql_catalog_from_dataframe.ipynb):
+Основной notebook-сценарий — [`notebooks/sql_catalog_from_dataframe.ipynb`](notebooks/sql_catalog_from_dataframe.ipynb). Файл можно скопировать и запускать вне репозитория. Он работает только с заранее подготовленными pandas DataFrame: не подключается к Greenplum и не выполняет SQL, а только разбирает переданный текст SQL. Для чтения данных непосредственно из Greenplum используйте отдельный CLI-сценарий из раздела «Greenplum 6».
 
-1. Задайте `SOURCE_TABLE` и параметры подключения Greenplum в окружении: `GP_DSN` либо `GP_HOST`, `GP_PORT`, `GP_DBNAME`, `GP_USER`, `GP_PASSWORD`, `GP_SSLMODE`.
-2. Настройте ограничитель источника и выполните ячейки сверху вниз.
+### Зависимости и bootstrap
 
-Greenplum на стороне сервера предварительно агрегирует одинаковые пары `query_text`/`query_text_template`; `source_row_count` сохраняет исходную частоту строк. По умолчанию notebook отказывается от неограниченного сканирования. Укажите `SINCE_COLUMN` и `SINCE_VALUE`, либо `ID_COLUMN` с `MIN_ID`/`MAX_ID`; иначе явно задайте `ALLOW_FULL_SCAN=True` только после оценки стоимости для кластера.
+Notebook требует `pandas>=2,<3` и проверяет версию до начала анализа. Если совместимых зависимостей нет либо при импорте возникает `ImportError` и `AUTO_INSTALL=True`, он устанавливает в окружение текущего Python-ядра `gp-sql-analyzer` из GitHub archive и `pandas>=2,<3`, затем повторяет проверку. Интернет и доступный `pip` нужны только для этого первоначального bootstrap; если зависимости уже установлены, notebook не обращается к сети и не запускает `pip`.
 
-`BATCH_SIZE` влияет только на размер порции получения данных. Результаты материализуются в памяти целиком. Для запуска только в памяти установите `OUTPUT_DIR=None`; `BUILD_HTML=False` по умолчанию.
+Если pandas уже загружен в kernel, но его версия находится вне диапазона `>=2,<3` либо не определяется, notebook не продолжает работу с несовместимым уже загруженным модулем. При `AUTO_INSTALL=True` он может обновить пакет на диске, после чего остановится с инструкцией: перезапустите kernel, заново загрузите или создайте входные DataFrame и повторите выполнение ячеек. Уже загруженный совместимый pandas 2.x используется без ложного требования restart.
 
-`analyze_dataframe(queries_df, ...)` — дополнительный API для случаев, когда DataFrame уже подготовлен. Он принимает обязательные `query_text`, `query_text_template` и необязательные `query_id`, `source_row_count`:
+При `AUTO_INSTALL=False` автоматической установки нет. Установите зависимости вручную в то же окружение, где работает notebook:
 
 ```python
-from gp_sql_analyzer.dataframe import analyze_dataframe
-
-result = analyze_dataframe(
-    queries_df,
-    schema_df=schema_df,          # необязательно, но повышает точность lineage
-    default_schema="public",
-    output_dir="reports/run-1",  # необязательно
-    build_html=False,             # HTML создаётся только по явному запросу
-)
-
-row_analysis_df = result.row_analysis_df  # одна строка на входную строку
-aggregate_df = result.aggregate_df        # schema/table/column/value/context/operator/pattern
-details_df = result.details_df            # одно найденное употребление на строку
+%pip install "gp-sql-analyzer @ https://github.com/xtreezzz/greenplum-sql-literal-analyzer/archive/refs/heads/main.zip" "pandas>=2,<3"
 ```
 
-`schema_df` ожидает `table_schema`, `table_name`, `column_name` и необязательный `table_catalog`. В `aggregate_df` входят только однозначно разрешённые физические колонки; `ambiguous`, `multi_source` и `unresolved` сохраняются в построчном разборе и `details_df`.
+### Входные DataFrame и конфигурация
 
-## Результаты
+До ячейки загрузки входов создайте pandas DataFrame и укажите имена переменных в конфигурации. Точные значения по умолчанию:
 
-В `--output-dir` создаются:
+```python
+QUERY_DF_NAME = "my_queries_df"
+SCHEMA_DF_NAME = "my_schema_df"
+DEFAULT_SCHEMA = "public"
+OUTPUT_DIR = None
+BUILD_HTML = False
+AUTO_INSTALL = True
+ANALYZER_ARCHIVE_URL = (
+    "https://github.com/xtreezzz/greenplum-sql-literal-analyzer/"
+    "archive/refs/heads/main.zip"
+)
+```
+
+`my_queries_df` обязателен. В нём нужны колонки `query_text` и `query_text_template`; `query_id` и `source_row_count` необязательны. Значение `source_row_count` должно быть положительным целым числом. Оно хранит исходную частоту, если одинаковые пары SQL уже были сгруппированы до запуска notebook.
+
+`my_schema_df` необязателен, но рекомендуется для точного lineage. В нём нужны `table_schema`, `table_name`, `column_name`, а `table_catalog` можно добавить опционально. Одна строка должна описывать одну физическую колонку; во всём DataFrame допустимо не более одного различного значения `table_catalog`, не равного `null`/`NaN`. Если метаданных схемы нет, задайте `SCHEMA_DF_NAME = None`.
+
+Минимальный пример с двумя физическими колонками и одной парой исходного SQL/шаблона:
+
+```python
+import pandas as pd
+
+my_schema_df = pd.DataFrame(
+    [
+        ("prod_dds", "calendar_date", "dt"),
+        ("prod_emart", "calendar_date", "dt"),
+    ],
+    columns=["table_schema", "table_name", "column_name"],
+)
+
+my_queries_df = pd.DataFrame(
+    [
+        {
+            "query_id": "q1",
+            "query_text": (
+                "SELECT dt FROM prod_dds.calendar_date "
+                "WHERE dt = DATE '2026-01-01';"
+            ),
+            "query_text_template": (
+                "SELECT dt FROM prod_dds.calendar_date "
+                "WHERE dt = DATE '&CHARACTER';"
+            ),
+        }
+    ]
+)
+```
+
+### Результаты notebook
+
+После анализа в памяти доступны шесть DataFrame:
+
+- `row_analysis_df` — одна строка на каждую входную строку;
+- `details_df` — отдельные найденные употребления литералов и их lineage;
+- `aggregate_df` — агрегация только по однозначно разрешённым физическим колонкам со статусом `resolved`;
+- `catalog_tables_df` — табличная сводка каталога;
+- `catalog_columns_df` — статистика по физическим колонкам;
+- `errors_df` — изолированные ошибки разбора и анализа.
+
+Статусы `ambiguous`, `multi_source` и `unresolved` не угадываются и не попадают в `aggregate_df`: они остаются в `row_analysis_df` и `details_df` для проверки качества lineage.
+
+По умолчанию `OUTPUT_DIR=None`, поэтому результаты остаются в памяти и файлы не создаются. Если задать путь в `OUTPUT_DIR`, notebook и библиотечный вызов `analyze_dataframe(..., output_dir=...)` записывают именно следующие файлы:
+
+- `row_analysis.jsonl`;
+- `details.jsonl`;
+- `errors.jsonl`;
+- `aggregate.jsonl`;
+- `catalog-stats.json`;
+- `catalog-columns.jsonl`;
+- `schema.json`.
+
+`catalog-stats.html` добавляется к ним только когда одновременно задан `OUTPUT_DIR` и установлено `BUILD_HTML=True`.
+
+## Результаты CLI `analyze`
+
+Этот набор относится только к пакетному запуску `python -m gp_sql_analyzer analyze --output-dir ...`, а не к notebook или `analyze_dataframe`. CLI создаёт:
 
 - `details.jsonl` — каждое вхождение плейсхолдера, колонка/колонки lineage, контекст, оператор, исходный литерал, извлечённое значение, тип и признаки regex;
 - `summary.jsonl` — частоты по значениям и форматам, число строк источника, уникальных запросов и шаблонов, доля внутри колонки и примеры query ID;
