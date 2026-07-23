@@ -59,17 +59,9 @@ python3 -m venv .venv
 
 Основной notebook-сценарий — [`notebooks/sql_catalog_from_dataframe.ipynb`](notebooks/sql_catalog_from_dataframe.ipynb). Файл можно скопировать и запускать вне репозитория. Он работает только с заранее подготовленными pandas DataFrame: не подключается к Greenplum и не выполняет SQL, а только разбирает переданный текст SQL. Для чтения данных непосредственно из Greenplum используйте отдельный CLI-сценарий из раздела «Greenplum 6».
 
-### Зависимости и bootstrap
+### Зависимости
 
-Notebook требует `pandas>=2,<3` и проверяет версию до начала анализа. Если совместимых зависимостей нет либо при импорте возникает `ImportError` и `AUTO_INSTALL=True`, он устанавливает в окружение текущего Python-ядра `gp-sql-analyzer` из GitHub archive и `pandas>=2,<3`, затем повторяет проверку. Интернет и доступный `pip` нужны только для этого первоначального bootstrap; если зависимости уже установлены, notebook не обращается к сети и не запускает `pip`.
-
-Если pandas уже загружен в kernel, но его версия находится вне диапазона `>=2,<3` либо не определяется, notebook не продолжает работу с несовместимым уже загруженным модулем. При `AUTO_INSTALL=True` он может обновить пакет на диске, после чего остановится с инструкцией: перезапустите kernel, заново загрузите или создайте входные DataFrame и повторите выполнение ячеек. Уже загруженный совместимый pandas 2.x используется без ложного требования restart.
-
-При `AUTO_INSTALL=False` автоматической установки нет. Установите зависимости вручную в то же окружение, где работает notebook:
-
-```python
-%pip install "gp-sql-analyzer @ https://github.com/xtreezzz/greenplum-sql-literal-analyzer/archive/refs/heads/main.zip" "pandas>=2,<3"
-```
+В notebook уже встроен полный AST-анализатор. Он никогда не устанавливает и не импортирует пакет этого репозитория и не скачивает архивы проекта. Нужны только `pandas>=2,<3` и `sqlglot>=25.34,<26` из PyPI. При `AUTO_INSTALL=True` notebook устанавливает или обновляет обе зависимости в окружении текущего Python-ядра, только если несовместимый модуль ещё не загружен; при совместимых версиях сеть и `pip` не используются. Если несовместимый или неопределяемый `pandas` либо `sqlglot` уже загружен (особенно после создания DataFrame), notebook его не подменяет: установите совместимые версии, перезапустите kernel и заново создайте или загрузите входные DataFrame. При `AUTO_INSTALL=False` установите эти две зависимости заранее в окружение ядра.
 
 ### Входные DataFrame и конфигурация
 
@@ -82,15 +74,11 @@ DEFAULT_SCHEMA = "public"
 OUTPUT_DIR = None
 BUILD_HTML = False
 AUTO_INSTALL = True
-ANALYZER_ARCHIVE_URL = (
-    "https://github.com/xtreezzz/greenplum-sql-literal-analyzer/"
-    "archive/refs/heads/main.zip"
-)
 ```
 
 `my_queries_df` обязателен. В нём нужны колонки `query_text` и `query_text_template`; `query_id` и `source_row_count` необязательны. Значение `source_row_count` должно быть положительным целым числом. Оно хранит исходную частоту, если одинаковые пары SQL уже были сгруппированы до запуска notebook.
 
-`my_schema_df` необязателен, но рекомендуется для точного lineage. В нём нужны `table_schema`, `table_name`, `column_name`, а `table_catalog` можно добавить опционально. Одна строка должна описывать одну физическую колонку; во всём DataFrame допустимо не более одного различного значения `table_catalog`, не равного `null`/`NaN`. Если метаданных схемы нет, задайте `SCHEMA_DF_NAME = None`.
+`my_schema_df` необязателен, но рекомендуется для точного lineage. В нём нужны `schema_name` **или** `table_schema`, а также `table_name`, `column_name`; `table_catalog` можно добавить опционально. Если присутствуют оба имени схемы, в каждой строке они должны быть одинаковыми валидными непустыми строками — иначе notebook выдаст ошибку валидации. Одна строка описывает одну физическую колонку; во всём DataFrame допустимо не более одного различного значения `table_catalog`, не равного `null`/`NaN`. Если метаданных схемы нет, задайте `SCHEMA_DF_NAME = None`. Входные DataFrame не изменяются.
 
 Минимальный пример с двумя физическими колонками и одной парой исходного SQL/шаблона:
 
@@ -102,7 +90,7 @@ my_schema_df = pd.DataFrame(
         ("prod_dds", "calendar_date", "dt"),
         ("prod_emart", "calendar_date", "dt"),
     ],
-    columns=["table_schema", "table_name", "column_name"],
+    columns=["schema_name", "table_name", "column_name"],
 )
 
 my_queries_df = pd.DataFrame(
@@ -121,6 +109,8 @@ my_queries_df = pd.DataFrame(
     ]
 )
 ```
+
+После создания DataFrame задайте имена в `QUERY_DF_NAME` и `SCHEMA_DF_NAME`, при необходимости настройте `AUTO_INSTALL`, `BUILD_HTML` и `OUTPUT_DIR`, затем выполните **Run All**. Notebook сам не читает Greenplum: для этого пользователь отдельно формирует DataFrame; текущий workflow принимает именно DataFrame.
 
 ### Результаты notebook
 
@@ -146,6 +136,17 @@ my_queries_df = pd.DataFrame(
 - `schema.json`.
 
 `catalog-stats.html` добавляется к ним только когда одновременно задан `OUTPUT_DIR` и установлено `BUILD_HTML=True`.
+
+### Обновление встроенного анализатора (maintainers)
+
+Встроенный payload генерируется из исходников. После изменения анализатора выполните:
+
+```bash
+PYTHONPATH=src python3 scripts/embed_notebook_analyzer.py
+PYTHONPATH=src python3 scripts/embed_notebook_analyzer.py --check
+```
+
+Генератор атомарно обновляет только стабильную ячейку с payload; не редактируйте сгенерированную ячейку вручную.
 
 ## Результаты CLI `analyze`
 

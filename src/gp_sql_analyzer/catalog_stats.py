@@ -3,12 +3,16 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
-from .complexity import CorpusComplexity
 from .models import ColumnRef, LineageResult
 from .patterns import classify_pattern
 from .schema import MappingSchemaProvider, TableRef
+
+if TYPE_CHECKING:
+    from .complexity import CorpusComplexity
+else:
+    CorpusComplexity = Any
 
 
 FORMAT_VERSION = "1.0"
