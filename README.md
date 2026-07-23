@@ -115,6 +115,62 @@ my_schema_df = pd.DataFrame(
 Если `OUTPUT_DIR=None`, файлы не создаются. При заданном каталоге записываются
 JSON/JSONL-результаты; HTML добавляется только при `BUILD_HTML=True`.
 
+### Пример выходных данных
+
+Ниже фактический результат для маленького синтетического примера выше. Для
+широких DataFrame показаны основные колонки; в `catalog_columns_df`
+`top_values` сокращён до списка значений.
+
+#### `row_analysis_df`
+
+```text
+query_id  analysis_count  resolved_count  multi_source_count  ambiguous_count  unresolved_count analysis_status
+      q1               3               3                   0                0                 0              ok
+```
+
+#### `details_df`
+
+```text
+query_id              qualified_name clause_context operator_or_function extracted_value pattern_family lineage_status           origin
+      q1 prod_dds.calendar_date.name          WHERE                ILIKE             sia  like_contains       resolved         template
+      q1   prod_dds.calendar_date.dt          WHERE              BETWEEN       1200 + 11    exact_value       resolved original_literal
+      q1   prod_dds.calendar_date.dt          WHERE              BETWEEN            1200    exact_value       resolved original_literal
+```
+
+#### `aggregate_df`
+
+```text
+             qualified_name extracted_value clause_context operator_or_function  source_row_count  occurrence_count  distinct_query_count  share_of_column
+  prod_dds.calendar_date.dt            1200          WHERE              BETWEEN                 1                 1                     1              0.5
+  prod_dds.calendar_date.dt       1200 + 11          WHERE              BETWEEN                 1                 1                     1              0.5
+prod_dds.calendar_date.name             sia          WHERE                ILIKE                 1                 1                     1              1.0
+```
+
+#### `catalog_tables_df`
+
+```text
+          qualified_name  column_count  active_column_count  condition_count  literal_count  distinct_query_count
+  prod_dds.calendar_date             2                    2                3              3                     1
+prod_emart.calendar_date             1                    0                0              0                     0
+```
+
+#### `catalog_columns_df`
+
+```text
+             qualified_name usage_status  condition_count  literal_count  distinct_query_count           top_values
+  prod_dds.calendar_date.dt       active                2              2                     1 [1200, 1200 + 11]
+prod_dds.calendar_date.name       active                1              1                     1                [sia]
+prod_emart.calendar_date.dt       unused                0              0                     0                   []
+```
+
+#### `errors_df`
+
+```text
+Empty DataFrame
+Columns: [query_id, stage, error_type, message, sql_fragment]
+Index: []
+```
+
 ## Примеры
 
 - `examples/tpcds_input.jsonl` — сложный TPC-DS запрос с CTE, `UNION ALL`,
